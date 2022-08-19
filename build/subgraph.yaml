@@ -1,93 +1,62 @@
-specVersion: 0.0.2
+specVersion: 0.0.4
 description: DAOHaus Supergraph
 repository: https://github.com/HausDAO/daohaus-supergraph
 schema:
   file: schema.graphql
 dataSources:
   - kind: ethereum/contract
-    name: V21Factory
-    network: goerli
+    name: Moloch
+    network: mainnet
     source:
-      address: "0x72B8Bf40C8B316753a3E470689DA625759D2b025"
-      abi: V21Factory
-      startBlock: 7103207
+      address: "0x3155755b79aa083bd953911c92705b7aa82a18f9"
+      abi: Moloch
+      startBlock: 118
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.5
       language: wasm/assemblyscript
       entities:
-        - Register
+        - Moloch
+        - TokenBalance
+        - Token
+        - Member
+        - Vote
+        - Proposal
       abis:
-        - name: V21Factory
-          file: V21Factory/abis/V21Factory.json
-        - name: Erc20
-          file: V21Factory/abis/Erc20.json
-        - name: Erc20Bytes32
-          file: V21Factory/abis/Erc20Bytes32.json
-      eventHandlers:
-        - event: SummonComplete(indexed
-            address,address[],address[],uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256[])
-          handler: handleSummonV21
-        - event: Register(uint256,address,string,string,uint256)
-          handler: handleRegisterV21
-      file: V21Factory/V21Factory.wasm
-  - kind: ethereum/contract
-    name: V22Factory
-    network: goerli
-    source:
-      address: "0xA8680d0E43aDe8BC32eCCF6C446eCe4CA15d4258"
-      abi: V22Factory
-      startBlock: 7104213
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.5
-      language: wasm/assemblyscript
-      entities:
-        - Register
-      abis:
-        - name: V22Factory
-          file: V22Factory/abis/V22Factory.json
-        - name: Erc20
-          file: V22Factory/abis/Erc20.json
-        - name: Erc20Bytes32
-          file: V22Factory/abis/Erc20Bytes32.json
-      eventHandlers:
-        - event: SummonComplete(indexed
-            address,address,address,address[],uint256,uint256,uint256,uint256,uint256,uint256,uint256)
-          handler: handleSummonV22
-      file: V22Factory/V22Factory.wasm
-  - kind: ethereum/contract
-    name: Poster
-    network: goerli
-    source:
-      address: "0x3c1f4802be7e26d95b31ef7a566e18f42e360cab"
-      abi: Poster
-      startBlock: 7103940
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.5
-      language: wasm/assemblyscript
-      entities:
-        - Post
-        - Minion
-      abis:
-        - name: Poster
-          file: Poster/abis/Poster.json
-        - name: Minion
-          file: Poster/abis/V2Minion.json
         - name: Moloch
-          file: Poster/abis/V21Moloch.json
+          file: Moloch/abis/Moloch.json
+        - name: Erc20
+          file: Moloch/abis/Erc20.json
+        - name: Erc20Bytes32
+          file: Moloch/abis/Erc20Bytes32.json
       eventHandlers:
-        - event: NewPost(indexed address,string,indexed string)
-          handler: handleNewPost
-      file: Poster/Poster.wasm
+        - event: SummonComplete(indexed
+            address,address[],uint256,uint256,uint256,uint256,uint256,uint256,uint256)
+          handler: handleSummonComplete
+        - event: SubmitProposal(indexed
+            address,uint256,uint256,uint256,address,uint256,address,string,bool[6],uint256,indexed
+            address,indexed address)
+          handler: handleSubmitProposal
+        - event: SubmitVote(uint256,indexed uint256,indexed address,indexed address,uint8)
+          handler: handleSubmitVote
+        - event: SponsorProposal(indexed address,indexed address,uint256,uint256,uint256)
+          handler: handleSponsorProposal
+        - event: ProcessProposal(indexed uint256,indexed uint256,bool)
+          handler: handleProcessProposal
+        - event: ProcessGuildKickProposal(indexed uint256,indexed uint256,bool)
+          handler: handleProcessGuildKickProposal
+        - event: ProcessWhitelistProposal(indexed uint256,indexed uint256,bool)
+          handler: handleProcessWhitelistProposal
+        - event: UpdateDelegateKey(indexed address,address)
+          handler: handleUpdateDelegateKey
+      file: Moloch/Moloch.wasm
   - kind: ethereum/contract
     name: V2SafeMinionFactory
-    network: goerli
+    network: mainnet
     source:
-      address: "0x121931c0Bc458A5f13F3861444AeB036cc8a5363"
+      address: "0xC1e0A9DB9eA830c52603798481045688c8AE99C2"
       abi: V2SafeMinionFactory
-      startBlock: 7021834
+      startBlock: 200
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.5
@@ -105,113 +74,8 @@ dataSources:
       file: V2SafeMinionFactory/V2SafeMinionFactory.wasm
 templates:
   - kind: ethereum/contract
-    name: MolochV21Template
-    network: goerli
-    source:
-      abi: V21Moloch
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.5
-      language: wasm/assemblyscript
-      file: templates/MolochV21Template/MolochV21Template.wasm
-      entities:
-        - Moloch
-        - TokenBalance
-        - Token
-        - Member
-        - Vote
-        - Proposal
-      abis:
-        - name: V21Moloch
-          file: MolochV21Template/abis/V21Moloch.json
-        - name: Erc20
-          file: MolochV21Template/abis/Erc20.json
-        - name: Erc20Bytes32
-          file: MolochV21Template/abis/Erc20Bytes32.json
-      eventHandlers:
-        - event: SubmitProposal(indexed
-            address,uint256,uint256,uint256,address,uint256,address,string,bool[6],uint256,indexed
-            address,indexed address)
-          handler: handleSubmitProposal
-        - event: SubmitVote(uint256,indexed uint256,indexed address,indexed address,uint8)
-          handler: handleSubmitVote
-        - event: SponsorProposal(indexed address,indexed address,uint256,uint256,uint256)
-          handler: handleSponsorProposal
-        - event: ProcessProposal(indexed uint256,indexed uint256,bool)
-          handler: handleProcessProposal
-        - event: ProcessGuildKickProposal(indexed uint256,indexed uint256,bool)
-          handler: handleProcessGuildKickProposal
-        - event: ProcessWhitelistProposal(indexed uint256,indexed uint256,bool)
-          handler: handleProcessWhitelistProposal
-        - event: UpdateDelegateKey(indexed address,address)
-          handler: handleUpdateDelegateKey
-        - event: CancelProposal(indexed uint256,address)
-          handler: handleCancelProposal
-        - event: Withdraw(indexed address,address,uint256)
-          handler: handleWithdraw
-        - event: Ragequit(indexed address,uint256,uint256)
-          handler: handleRagequit
-        - event: TokensCollected(indexed address,uint256)
-          handler: handleTokensCollected
-  - kind: ethereum/contract
-    name: MolochV22Template
-    network: goerli
-    source:
-      abi: V22Moloch
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.5
-      language: wasm/assemblyscript
-      file: templates/MolochV21Template/MolochV21Template.wasm
-      entities:
-        - Moloch
-        - TokenBalance
-        - Token
-        - Member
-        - Vote
-        - Proposal
-        - Shaman
-      abis:
-        - name: V22Moloch
-          file: MolochV22Template/abis/V22Moloch.json
-        - name: Erc20
-          file: MolochV22Template/abis/Erc20.json
-        - name: Erc20Bytes32
-          file: MolochV22Template/abis/Erc20Bytes32.json
-      eventHandlers:
-        - event: SubmitProposal(indexed
-            address,uint256,uint256,uint256,address,uint256,address,string,bool[6],uint256,indexed
-            address,indexed address)
-          handler: handleSubmitProposal
-        - event: SubmitVote(uint256,indexed uint256,indexed address,indexed address,uint8)
-          handler: handleSubmitVote
-        - event: SponsorProposal(indexed address,indexed address,uint256,uint256,uint256)
-          handler: handleSponsorProposal
-        - event: ProcessProposal(indexed uint256,indexed uint256,bool)
-          handler: handleProcessProposal
-        - event: ProcessGuildKickProposal(indexed uint256,indexed uint256,bool)
-          handler: handleProcessGuildKickProposal
-        - event: ProcessWhitelistProposal(indexed uint256,indexed uint256,bool)
-          handler: handleProcessWhitelistProposal
-        - event: UpdateDelegateKey(indexed address,address)
-          handler: handleUpdateDelegateKey
-        - event: CancelProposal(indexed uint256,address)
-          handler: handleCancelProposal
-        - event: Withdraw(indexed address,address,uint256)
-          handler: handleWithdraw
-        - event: Ragequit(indexed address,uint256,uint256)
-          handler: handleRagequit
-        - event: TokensCollected(indexed address,uint256)
-          handler: handleTokensCollected
-        - event: SetSpamPrevention(address,uint256)
-          handler: handleSpamPrevention
-        - event: SetShaman(indexed address,bool)
-          handler: handleSetShaman
-        - event: Shaman(indexed address,uint256,uint256,bool)
-          handler: handleShaman
-  - kind: ethereum/contract
     name: SafeMinionTemplate
-    network: goerli
+    network: mainnet
     source:
       abi: SafeMinion
     mapping:
